@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -50,9 +45,9 @@ abline(v=meanTotal, lty=3, lwd=3)
 abline(v=medianTotal, lty=5, lwd=3)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
-The mean total per day (dotted line) is 5.70608 &times; 10<sup>5</sup> steps and the median (long-dash line) is 570608 steps per day.
+The mean total per day (dotted line) is 9354 steps and the median (long-dash line) is 10395 steps per day.
 
 
 ## What is the average daily activity pattern?
@@ -66,9 +61,7 @@ meanByInterval <- summarise(byInterval, mean=mean(steps,na.rm=TRUE))
 plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps")
 ```
 
-```
-## Error in xy.coords(x, y, xlabel, ylabel, log): 'x' and 'y' lengths differ
-```
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 ```r
 maxAvgSteps <- max(meanByInterval$mean)
@@ -76,7 +69,7 @@ roundedMax <- round(maxAvgSteps, 2)
 maxAvgStepsInt <- meanByInterval[[which.max(meanByInterval$mean),1]]
 ```
 
-Interval 37.3825996 had the most steps on average, with 37.38 steps over those five minutes.
+Interval 835 had the most steps on average, with 206.17 steps over those five minutes.
 
 
 ## Imputing missing values
@@ -97,15 +90,82 @@ temp$missing <- as.numeric(is.na(actData$steps))
 tempByDay <- group_by(temp,date)
 missingByDay <- summarise(tempByDay,totalMissing = sum(missing))
 library(xtable)
+```
+
+```
+## Warning: package 'xtable' was built under R version 3.1.2
+```
+
+```r
 xt <- xtable(data.frame(missingByDay))
 print(xt,type="html")
 ```
 
 <!-- html table generated in R 3.1.1 by xtable 1.7-4 package -->
-<!-- Sun Jan 18 01:44:18 2015 -->
+<!-- Sun Jan 18 01:50:50 2015 -->
 <table border=1>
-<tr> <th>  </th> <th> totalMissing </th>  </tr>
-  <tr> <td align="right"> 1 </td> <td align="right"> 2304.00 </td> </tr>
+<tr> <th>  </th> <th> date </th> <th> totalMissing </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td> 2012-10-01 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 2 </td> <td> 2012-10-02 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 3 </td> <td> 2012-10-03 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 4 </td> <td> 2012-10-04 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 5 </td> <td> 2012-10-05 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 6 </td> <td> 2012-10-06 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 7 </td> <td> 2012-10-07 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 8 </td> <td> 2012-10-08 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 9 </td> <td> 2012-10-09 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 10 </td> <td> 2012-10-10 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 11 </td> <td> 2012-10-11 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 12 </td> <td> 2012-10-12 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 13 </td> <td> 2012-10-13 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 14 </td> <td> 2012-10-14 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 15 </td> <td> 2012-10-15 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 16 </td> <td> 2012-10-16 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 17 </td> <td> 2012-10-17 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 18 </td> <td> 2012-10-18 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 19 </td> <td> 2012-10-19 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 20 </td> <td> 2012-10-20 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 21 </td> <td> 2012-10-21 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 22 </td> <td> 2012-10-22 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 23 </td> <td> 2012-10-23 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 24 </td> <td> 2012-10-24 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 25 </td> <td> 2012-10-25 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 26 </td> <td> 2012-10-26 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 27 </td> <td> 2012-10-27 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 28 </td> <td> 2012-10-28 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 29 </td> <td> 2012-10-29 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 30 </td> <td> 2012-10-30 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 31 </td> <td> 2012-10-31 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 32 </td> <td> 2012-11-01 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 33 </td> <td> 2012-11-02 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 34 </td> <td> 2012-11-03 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 35 </td> <td> 2012-11-04 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 36 </td> <td> 2012-11-05 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 37 </td> <td> 2012-11-06 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 38 </td> <td> 2012-11-07 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 39 </td> <td> 2012-11-08 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 40 </td> <td> 2012-11-09 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 41 </td> <td> 2012-11-10 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 42 </td> <td> 2012-11-11 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 43 </td> <td> 2012-11-12 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 44 </td> <td> 2012-11-13 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 45 </td> <td> 2012-11-14 </td> <td align="right"> 288.00 </td> </tr>
+  <tr> <td align="right"> 46 </td> <td> 2012-11-15 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 47 </td> <td> 2012-11-16 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 48 </td> <td> 2012-11-17 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 49 </td> <td> 2012-11-18 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 50 </td> <td> 2012-11-19 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 51 </td> <td> 2012-11-20 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 52 </td> <td> 2012-11-21 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 53 </td> <td> 2012-11-22 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 54 </td> <td> 2012-11-23 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 55 </td> <td> 2012-11-24 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 56 </td> <td> 2012-11-25 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 57 </td> <td> 2012-11-26 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 58 </td> <td> 2012-11-27 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 59 </td> <td> 2012-11-28 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 60 </td> <td> 2012-11-29 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td align="right"> 61 </td> <td> 2012-11-30 </td> <td align="right"> 288.00 </td> </tr>
    </table>
 
 In order to devise a strategy for imputing the missing values, first look to see how the total steps varies by day throughout the 2-month period.
@@ -115,9 +175,7 @@ In order to devise a strategy for imputing the missing values, first look to see
 plot(as.Date(totalStepsByDay$date),totalStepsByDay$total, type="o", xlab="Date", ylab="Total steps per day")
 ```
 
-```
-## Error in as.Date.default(totalStepsByDay$date): do not know how to convert 'totalStepsByDay$date' to class "Date"
-```
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
 From the above plot it is apparent that other than the days with no data and a few days with very few steps, the total number of steps per day is somewhat uniform. For this reason, it seems reasonable as a first approximation to assign all days with no data means based on the average number of steps per interval. This makes all missing days into "average" days.
 
@@ -133,10 +191,6 @@ for (day in daysToImpute[[1]]){
 }
 ```
 
-```
-## Error in daysToImpute[[1]]: subscript out of bounds
-```
-
 Let's check how that same plot looks now that missing values have been imputed.
 
 
@@ -146,9 +200,7 @@ totalStepsByDayImpute <- summarise(byDayImpute, total=sum(steps, na.rm=TRUE))
 plot(as.Date(totalStepsByDayImpute$date),totalStepsByDayImpute$total, type="o", xlab="Date", ylab="Total steps by day")
 ```
 
-```
-## Error in as.Date.default(totalStepsByDayImpute$date): do not know how to convert 'totalStepsByDayImpute$date' to class "Date"
-```
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
 
 Now generate a new histogram and re-compute the mean and median with the imputed values present.
@@ -164,9 +216,9 @@ abline(v=meanTotalImpute, lty=3, lwd=3)
 abline(v=medianTotalImpute, lty=5, lwd=3)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
 
-With the imputed values, the mean and median are now equal (570608 and 570608 steps, respectively). Both the mean and median increased relative to their previous values. The mean was 5.70608 &times; 10<sup>5</sup> steps before imputation and 570608 steps after. Likewise the median was 570608 steps before and 570608 steps after.
+With the imputed values, the mean and median are now equal (10766 and 10766 steps, respectively). Both the mean and median increased relative to their previous values. The mean was 9354 steps before imputation and 10766 steps after. Likewise the median was 10395 steps before and 10766 steps after.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -197,7 +249,7 @@ plot(meanWeekday$interval,meanWeekday$mean,"l", ylim=c(0,240), ylab="Weekday mea
 plot(meanWeekend$interval,meanWeekend$mean,"l", ylim=c(0,240), ylab="Weekend mean steps", xlab="Interval")
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
 
 The weekday average has a large peak at interval 835 that is not present during the weekend. In addition, weekday steps start just after interval 500 while a substantial increase is delayed for weekends till approximately interval 800.  
 
