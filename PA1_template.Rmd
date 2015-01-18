@@ -7,11 +7,19 @@ output:
 
 
 ## Loading and preprocessing the data
-First, read in the data.
+First, read in the data and convert the interval to a POSIXct time.
 
 ```{r}
 unzip("activity.zip")
 actData <- read.csv("activity.csv")
+actData$IntervalNumber <- actData$interval
+#first get all the intervals to have 4 digits with leading zeros as necessary
+actData$interval <- formatC(actData$interval, width=4, format="d", flag="0")
+#now convert them to times
+actData$interval <- as.POSIXlt(strptime(paste(actData$date, actData$interval), "%Y-%m-%d %H%M"))
+#now strip away the date by converting to an ITime from the data.table package
+library(data.table)
+actData$interval <- as.ITime(actData$interval)
 head(actData)
 ```
 
@@ -45,13 +53,14 @@ Compute the average steps per time interval across all days and plot it as a tim
 
 ```{r}
 meanByInterval <- ddply(actData, .(interval), summarize, mean=mean(steps,na.rm=TRUE))
-plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps", main="Average daily activity pattern")
+plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Time since midnight (s)", ylab="Mean steps", main="Average daily activity pattern")
 maxAvgSteps <- max(meanByInterval$mean)
 roundedMax <- round(maxAvgSteps, 2)
 maxAvgStepsInt <- meanByInterval[[which.max(meanByInterval$mean),1]]
+maxAvgStepsIntNum <- actData$IntervalNumber[maxAvgStepsInt/60/5+1]
 ```
 
-Interval `r maxAvgStepsInt` had the most steps on average, with `r roundedMax` steps over those five minutes.
+Interval `r maxAvgStepsIntNum` (`r maxAvgStepsInt` seconds after midnight) had the most steps on average, with `r roundedMax` steps over those five minutes.
 
 
 ## Imputing missing values
@@ -136,9 +145,9 @@ actDataImputeWeekday <- actDataImpute[actDataImpute$weekend == "weekday",]
 meanWeekend <- ddply(actDataImputeWeekend, .(interval), summarise, mean=mean(steps,na.rm=TRUE))
 meanWeekday <- ddply(actDataImputeWeekday, .(interval), summarise, mean=mean(steps,na.rm=TRUE))
 par(mfrow=c(2,1), mar=c(4,4,2,2))
-plot(meanWeekday$interval,meanWeekday$mean,"l", ylim=c(0,240), ylab="Weekday mean steps", xlab="Interval", main="Mean steps per interval for weekday (top) and weekend (bottom) days")
-plot(meanWeekend$interval,meanWeekend$mean,"l", ylim=c(0,240), ylab="Weekend mean steps", xlab="Interval")
+plot(meanWeekday$interval,meanWeekday$mean,"l", ylim=c(0,240), ylab="Weekday mean steps", xlab="Time since midnight (s)", main="Mean steps per interval for weekday (top) and weekend (bottom) days")
+plot(meanWeekend$interval,meanWeekend$mean,"l", ylim=c(0,240), ylab="Weekend mean steps", xlab="Time since midnight (s)")
 ```
 
-The weekday average has a large peak at interval 835 that is not present during the weekend. In addition, weekday steps start just after interval 500 while a substantial increase is delayed for weekends till approximately interval 800.  
+The weekday average has a large peak at interval 835 that is not present during the weekend. In addition, weekday steps start just after interval 500 while a substantial increase is delayed for weekends till approximately interval 800. This shows that on average this individual started taking steps earlier on weekdays, and slightly later on weekends.  
 
