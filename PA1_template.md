@@ -1,4 +1,9 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
 
 
 ## Loading and preprocessing the data
@@ -24,13 +29,12 @@ head(actData)
 
 ## What is mean total number of steps taken per day?
 
-Compute the total steps taken per day and remove missing values. This uses the dplyr package.
+Compute the total steps taken per day and remove missing values.
 
 
 ```r
-library(dplyr)
-byDay <- group_by(actData,date)
-totalStepsByDay <- summarise(byDay, total=sum(steps, na.rm=TRUE))
+library(plyr)
+totalStepsByDay <- ddply(actData, .(date), summarize, total=sum(steps, na.rm=TRUE))
 ```
 
 Plot a histogram of total steps per day and compute the mean and median total steps per day.
@@ -45,7 +49,7 @@ abline(v=meanTotal, lty=3, lwd=3)
 abline(v=medianTotal, lty=5, lwd=3)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 
 The mean total per day (dotted line) is 9354 steps and the median (long-dash line) is 10395 steps per day.
 
@@ -56,12 +60,11 @@ Compute the average steps per time interval across all days and plot it as a tim
 
 
 ```r
-byInterval <- group_by(actData, interval)
-meanByInterval <- summarise(byInterval, mean=mean(steps,na.rm=TRUE))
-plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps")
+meanByInterval <- ddply(actData, .(interval), summarize, mean=mean(steps,na.rm=TRUE))
+plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps", main="Average daily activity pattern")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
 ```r
 maxAvgSteps <- max(meanByInterval$mean)
@@ -87,22 +90,14 @@ There are 2304 missing values, 13.1% of the total data. Importantly though, they
 # Compute the number of missing values per day and display it as a table
 temp <- actData
 temp$missing <- as.numeric(is.na(actData$steps))
-tempByDay <- group_by(temp,date)
-missingByDay <- summarise(tempByDay,totalMissing = sum(missing))
+missingByDay <- ddply(temp, .(date), summarize, totalMissing = sum(missing))
 library(xtable)
-```
-
-```
-## Warning: package 'xtable' was built under R version 3.1.2
-```
-
-```r
 xt <- xtable(data.frame(missingByDay))
 print(xt,type="html")
 ```
 
 <!-- html table generated in R 3.1.1 by xtable 1.7-4 package -->
-<!-- Sun Jan 18 01:50:50 2015 -->
+<!-- Sun Jan 18 10:56:55 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> date </th> <th> totalMissing </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> 2012-10-01 </td> <td align="right"> 288.00 </td> </tr>
@@ -175,7 +170,7 @@ In order to devise a strategy for imputing the missing values, first look to see
 plot(as.Date(totalStepsByDay$date),totalStepsByDay$total, type="o", xlab="Date", ylab="Total steps per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
 
 From the above plot it is apparent that other than the days with no data and a few days with very few steps, the total number of steps per day is somewhat uniform. For this reason, it seems reasonable as a first approximation to assign all days with no data means based on the average number of steps per interval. This makes all missing days into "average" days.
 
@@ -183,7 +178,7 @@ From the above plot it is apparent that other than the days with no data and a f
 ```r
 actDataImpute <- actData
 daysToImpute <- as.list(missingByDay[missingByDay$totalMissing==288,1])
-for (day in daysToImpute[[1]]){
+for (day in daysToImpute){
         #since all days have the same intervals each day that is missing 
         #values can be directly replaced with an average day (without worrying
         #about matching intervals explictly)
@@ -195,12 +190,11 @@ Let's check how that same plot looks now that missing values have been imputed.
 
 
 ```r
-byDayImpute <- group_by(actDataImpute,date)
-totalStepsByDayImpute <- summarise(byDayImpute, total=sum(steps, na.rm=TRUE))
+totalStepsByDayImpute <- ddply(actDataImpute, .(date), summarize, total=sum(steps, na.rm=TRUE))
 plot(as.Date(totalStepsByDayImpute$date),totalStepsByDayImpute$total, type="o", xlab="Date", ylab="Total steps by day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
 
 
 Now generate a new histogram and re-compute the mean and median with the imputed values present.
@@ -216,7 +210,7 @@ abline(v=meanTotalImpute, lty=3, lwd=3)
 abline(v=medianTotalImpute, lty=5, lwd=3)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
 
 With the imputed values, the mean and median are now equal (10766 and 10766 steps, respectively). Both the mean and median increased relative to their previous values. The mean was 9354 steps before imputation and 10766 steps after. Likewise the median was 10395 steps before and 10766 steps after.
 
@@ -239,7 +233,6 @@ Now compute the average steps per time interval for weekend days and weekdays, t
 
 
 ```r
-library(plyr)
 actDataImputeWeekend <- actDataImpute[actDataImpute$weekend == "weekend",]
 actDataImputeWeekday <- actDataImpute[actDataImpute$weekend == "weekday",]
 meanWeekend <- ddply(actDataImputeWeekend, .(interval), summarise, mean=mean(steps,na.rm=TRUE))
@@ -249,7 +242,7 @@ plot(meanWeekday$interval,meanWeekday$mean,"l", ylim=c(0,240), ylab="Weekday mea
 plot(meanWeekend$interval,meanWeekend$mean,"l", ylim=c(0,240), ylab="Weekend mean steps", xlab="Interval")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
 The weekday average has a large peak at interval 835 that is not present during the weekend. In addition, weekday steps start just after interval 500 while a substantial increase is delayed for weekends till approximately interval 800.  
 

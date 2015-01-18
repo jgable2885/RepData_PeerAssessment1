@@ -18,12 +18,11 @@ head(actData)
 
 ## What is mean total number of steps taken per day?
 
-Compute the total steps taken per day and remove missing values. This uses the dplyr package.
+Compute the total steps taken per day and remove missing values.
 
 ```{r, message=FALSE}
-library(dplyr)
-byDay <- group_by(actData,date)
-totalStepsByDay <- summarise(byDay, total=sum(steps, na.rm=TRUE))
+library(plyr)
+totalStepsByDay <- ddply(actData, .(date), summarize, total=sum(steps, na.rm=TRUE))
 ```
 
 Plot a histogram of total steps per day and compute the mean and median total steps per day.
@@ -45,9 +44,8 @@ The mean total per day (dotted line) is `r roundedMeanTotal` steps and the media
 Compute the average steps per time interval across all days and plot it as a time series.
 
 ```{r}
-byInterval <- group_by(actData, interval)
-meanByInterval <- summarise(byInterval, mean=mean(steps,na.rm=TRUE))
-plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps")
+meanByInterval <- ddply(actData, .(interval), summarize, mean=mean(steps,na.rm=TRUE))
+plot(meanByInterval$interval,meanByInterval$mean, type="l", xlab="Interval", ylab="Mean steps", main="Average daily activity pattern")
 maxAvgSteps <- max(meanByInterval$mean)
 roundedMax <- round(maxAvgSteps, 2)
 maxAvgStepsInt <- meanByInterval[[which.max(meanByInterval$mean),1]]
@@ -69,8 +67,7 @@ There are `r naCount` missing values, `r percentMissing`% of the total data. Imp
 # Compute the number of missing values per day and display it as a table
 temp <- actData
 temp$missing <- as.numeric(is.na(actData$steps))
-tempByDay <- group_by(temp,date)
-missingByDay <- summarise(tempByDay,totalMissing = sum(missing))
+missingByDay <- ddply(temp, .(date), summarize, totalMissing = sum(missing))
 library(xtable)
 xt <- xtable(data.frame(missingByDay))
 print(xt,type="html")
@@ -87,7 +84,7 @@ From the above plot it is apparent that other than the days with no data and a f
 ```{r}
 actDataImpute <- actData
 daysToImpute <- as.list(missingByDay[missingByDay$totalMissing==288,1])
-for (day in daysToImpute[[1]]){
+for (day in daysToImpute){
         #since all days have the same intervals each day that is missing 
         #values can be directly replaced with an average day (without worrying
         #about matching intervals explictly)
@@ -98,8 +95,7 @@ for (day in daysToImpute[[1]]){
 Let's check how that same plot looks now that missing values have been imputed.
 
 ```{r}
-byDayImpute <- group_by(actDataImpute,date)
-totalStepsByDayImpute <- summarise(byDayImpute, total=sum(steps, na.rm=TRUE))
+totalStepsByDayImpute <- ddply(actDataImpute, .(date), summarize, total=sum(steps, na.rm=TRUE))
 plot(as.Date(totalStepsByDayImpute$date),totalStepsByDayImpute$total, type="o", xlab="Date", ylab="Total steps by day")
 ```
 
@@ -134,8 +130,7 @@ actDataImpute$weekend <- factor(actDataImpute$weekend, labels = c("weekday","wee
 
 Now compute the average steps per time interval for weekend days and weekdays, then plot them in a column.
 
-```{r, message=FALSE, fig.height=6}
-library(plyr)
+```{r, fig.height=6}
 actDataImputeWeekend <- actDataImpute[actDataImpute$weekend == "weekend",]
 actDataImputeWeekday <- actDataImpute[actDataImpute$weekend == "weekday",]
 meanWeekend <- ddply(actDataImputeWeekend, .(interval), summarise, mean=mean(steps,na.rm=TRUE))
